@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Для тебя ❤</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f2e8c9;
+        color: #ffb6c1;
+        overflow-x: hidden;
+    }
+    .card {
+        background: #FFFFF0;
+        padding: 24px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+    .card.big { padding: 60px 24px; }
+    .question-card {
+        background: #FFFFF0;
+        padding: 30px 24px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+        text-align: center;
+        font-size: 20px;
+        color: #ffb6c1;
+        font-weight: bold;
+    }
+    .answer-card {
+        background: #FFF5EE;
+        padding: 18px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.15s, background 0.15s;
+        color: #ffb6c1;
+        font-size: 18px;
+    }
+    .answer-card:hover { transform: scale(1.02); background: #ffece4; }
+    .btn {
+        display: block;
+        width: 100%;
+        background: #FFFFF0;
+        color: #ffb6c1;
+        border: 2px solid #ffb6c1;
+        padding: 20px;
+        font-size: 22px;
+        font-weight: bold;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        text-align: center;
+    }
+    .btn:hover { background: #fff6d8; transform: scale(1.02); }
+    .fade-in { opacity: 0; transform: translateY(-40px); animation: slideDown 0.6s ease forwards; }
+    @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+    .hidden { display: none; }
+    video {
+        width: 100%;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        display: block;
+    }
+    .question-image-frame {
+        background: #FFFFF0;
+        border: 4px solid #ffa8af;
+        border-radius: 20px;
+        padding: 8px;
+        margin-top: 4px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .question-image-frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        border-radius: 14px;
+    }
+    .heart {
+        position: fixed;
+        font-size: 26px;
+        pointer-events: none;
+        user-select: none;
+        z-index: 99999;
+    }
+    .anniversary-card {
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.15s, background 0.15s;
+    }
+    .anniversary-card:hover { background: #fff6d8; transform: scale(1.01); }
+    .anniversary-text {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffb6c1;
+        opacity: 0;
+        transform: scale(0.6);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .anniversary-text.revealed { opacity: 1; transform: scale(1); }
+    .tap-hint {
+        margin-top: 12px;
+        font-size: 16px;
+        color: #ffb6c1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        animation: bounce 1.2s ease-in-out infinite;
+    }
+    .tap-hint.hidden { display: none; }
+    .arrow-down {
+        display: inline-block;
+        font-size: 22px;
+        animation: bounceArrow 1.2s ease-in-out infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+    @keyframes bounceArrow { 0%,100%{transform:translateY(0);} 50%{transform:translateY(4px);} }
+    .vanish {
+        opacity: 0 !important;
+        transform: translateY(-30px) !important;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+        pointer-events: none;
+    }
+    .assoc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .assoc-item {
+        background: #FFFFF0;
+        border: 2px solid #ffb6c1;
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+        cursor: pointer;
+        color: #ffb6c1;
+        font-size: 18px;
+        font-weight: bold;
+        transition: transform 0.15s, background 0.15s;
+    }
+    .assoc-item:hover { transform: scale(1.02); background: #fff6d8; }
+    .assoc-item.center {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: 60%;
+    }
+    .assoc-question {
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        color: #ffb6c1;
+        margin-bottom: 20px;
+    }
+    #videoBlock .btn { margin-bottom: 20px; }
+
+    /* Стили для страницы ассоциации */
+    .assoc-title-card {
+        background: #FFFFF0;
+        padding: 30px 24px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: #ffb6c1;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .assoc-text-card {
+        background: #FFFFF0;
+        padding: 30px 24px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        font-size: 17px;
+        line-height: 1.6;
+        color: #ffb6c1;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .assoc-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    .assoc-img-frame {
+        background: #FFFFF0;
+        border: 4px solid #ffa8af;
+        border-radius: 20px;
+        padding: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .assoc-img-frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        border-radius: 14px;
+    }
+</style>
+</head>
+<body>
+
+    <!-- Главный экран -->
+    <div id="mainScreen">
+        <div class="card big fade-in" id="dateCard">
+            <div style="font-size: 32px; font-weight: bold;">28.12.2025</div>
+        </div>
+
+        <div class="card anniversary-card fade-in" id="anniversaryCard" style="animation-delay: 0.15s;">
+            <div class="anniversary-text" id="anniversaryText">С годовщиной тебя, любимый!!!</div>
+            <div class="tap-hint" id="tapHint">
+                <span>Нажми</span>
+                <span class="arrow-down">↓</span>
+            </div>
+        </div>
+
+        <button id="startBtn" class="btn fade-in" style="animation-delay: 1.8s;">Start</button>
+
+        <div id="quizContainer"></div>
+        <div id="finalBlock" class="hidden"></div>
+        <div id="videoBlock" class="hidden"></div>
+    </div>
+
+    <!-- Экран ассоциации -->
+    <div id="assocScreen" class="hidden"></div>
+
+<script>
+    // ===== ДАННЫЕ =====
+    const questions = [
+        "Ты знал что я тебя люблю?",
+        "Ты мое солнышко?",
+        "Ты у меня самый чудесный?",
+        "Ты у меня самый красивый?",
+        "Ты у меня самый умный?",
+        "Ты у меня самый любименький?"
+    ];
+    const answers = ["Да", "Конечно", "Разумеется"];
+    const questionImages = [
+        "images/kt1.jpg","images/kt2.jpg","images/kt3.jpg",
+        "images/kt4.jpg","images/kt5.jpg","images/kt6.jpg"
+    ];
+
+    const assocData = {
+        fox: {
+            title: "Лиса",
+            text: "Лиса — это хищное млекопитающее семейства псовых, известное своей хитростью и ловкостью. Её рыжая пушистая шуба и длинный пушистый хвост помогают ей выживать в самых разных климатических условиях. Лисы живут поодиночке или небольшими семейными группами, а их норы часто служат укрытием для многих поколений. Рацион лисы очень разнообразен: от мелких грызунов и птиц до насекомых и ягод. Благодаря своей сообразительности и осторожности лиса стала героиней множества сказок и легенд по всему миру",
+            images: ["f1","f2","f3","f4","f5"]
+        },
+        white: {
+            title: "Белый цвет",
+            text: "Белый цвет — это ахроматический цвет, который воспринимается как самый светлый и чистый. В природе он ассоциируется со снегом, облаками, молоком и цветами, символизируя невинность и начало. В культуре разных народов белый цвет имеет двойственное значение: он может означать как траур и пустоту, так и праздник и торжество. В оптике белый цвет представляет собой смесь всех цветов спектра, которые человеческий глаз воспринимает одновременно. В дизайне и моде белый цвет считается универсальным, создающим ощущение простора и свежести",
+            images: ["w1","w2","w3","w4","w5","w6","w7"]
+        },
+        roses: {
+            title: "Розы",
+            text: "Розы — это род кустарников семейства розоцветных, знаменитых своими красивыми и ароматными цветами. Они насчитывают сотни видов и тысячи сортов, различающихся по размеру, форме и окраске лепестков. Розы выращивают как в декоративных целях для садов и букетов, так и для получения эфирного масла, используемого в парфюмерии. В культуре роза является символом любви, страсти и красоты, а её шипы часто олицетворяют боль или опасность, скрытую за привлекательностью. Уход за розами требует внимания и знаний, но результат в виде пышного цветения оправдывает все усилия садовода",
+            images: ["r1","r2","r3","r4","r5"]
+        },
+        winter: {
+            title: "Зима",
+            text: "Зима — это одно из четырёх времён года, характеризующееся самой низкой температурой и коротким световым днём. В умеренных широтах зима приносит снегопады, морозы и замерзание водоёмов, что кардинально меняет облик природы. Животные и растения адаптируются к холодам: одни впадают в спячку, другие мигрируют в тёплые края, а третьи меняют окрас или образ жизни. Зимние праздники, такие как Новый год и Рождество, занимают особое место в культуре многих народов и связаны с семейными традициями. Несмотря на суровость, зима дарит людям уникальные виды спорта и развлечения, от катания на лыжах до лепки снеговиков",
+            images: ["wi1","wi2","wi3","wi4","wi5","wi6"]
+        },
+        crane: {
+            title: "Журавль",
+            text: "Журавль — это крупная длинноногая и длинношеяя птица, обитающая преимущественно на болотах и заболоченных лугах. Журавли известны своими сложными брачными танцами, которые они исполняют парами во время сезона размножения. Эти птицы совершают дальние сезонные миграции, выстраиваясь в характерный клин во время перелётов на юг. В культуре многих народов журавль символизирует долголетие, верность и мудрость, а также часто упоминается в мифах и сказках. Некоторые виды журавлей находятся под угрозой исчезновения из-за разрушения естественных мест обитания и изменений климата",
+            images: ["ж1","ж2","ж3","ж4","ж5"]
+        },
+        peace: {
+            title: "Умиротворение",
+            text: "Умиротворение — это состояние внутреннего покоя, спокойствия и отсутствия тревоги или конфликта. Оно может возникать как результат созерцания природы, медитации или разрешения сложной жизненной ситуации. В психологии умиротворение связано с принятием того, что нельзя изменить, и умением ценить настоящий момент. Достижение умиротворения часто требует сознательных усилий, таких как практика благодарности или отказ от лишних переживаний. В искусстве и литературе умиротворение изображается через тихие пейзажи, плавные линии и гармоничные композиции",
+            images: ["у1","у2","у3","у4","у5"]
+        },
+        portugal: {
+            title: "Португалия",
+            text: "Португалия — это государство на юго-западе Европы, расположенное на Пиренейском полуострове и омываемое Атлантическим океаном. Страна славится своими живописными побережьями, историческими городами и богатым культурным наследием, включая музыку фаду и архитектуру мануэлино. Португалия была одной из ведущих морских держав в эпоху Великих географических открытий, что оставило след в её языке и традициях по всему миру. Климат здесь мягкий, с тёплым летом и дождливой зимой, что благоприятствует сельскому хозяйству, особенно виноградарству. Сегодня Португалия — популярное туристическое направление, известное своей кухней, винами и гостеприимством",
+            images: ["p1","p2","p3","p4","p5"]
+        },
+        bear: {
+            title: "Медведь",
+            text: "Медведь — это крупное хищное млекопитающее, обитающее в лесах Северного полушария, включая бурых, белых и гималайских медведей. Медведи всеядны: их рацион включает ягоды, орехи, рыбу, мелких животных и мёд, который они добывают из пчелиных ульев. Многие виды медведей впадают в зимнюю спячку, проводя холодные месяцы в берлоге и существуя за счёт накопленного жира. В культуре медведь часто символизирует силу, мужество и материнскую защиту, а также является персонажем множества сказок и народных поверий. В дикой природе медведи могут представлять опасность для человека, поэтому встречи с ними требуют осторожности и знания правил поведения",
+            images: ["b1","b2","b3","b4","b5"]
+        },
+        orange: {
+            title: "Оранжевый цвет",
+            text: "Оранжевый цвет — это яркий цвет, расположенный между жёлтым и красным в спектре видимого света. В природе он ассоциируется с апельсинами, закатами, тыквами и осенней листвой, символизируя энергию и тепло. В психологии оранжевый цвет часто связывают с радостью, творчеством и стимуляцией аппетита, поэтому его активно используют в рекламе и дизайне интерьеров. В разных культурах оранжевый может означать как праздник и урожай, так и предупреждение или опасность, например, в дорожных знаках. Благодаря своей заметности оранжевый цвет широко применяется в спецодежде для повышения безопасности",
+            images: ["o1","o2","o3","o4","o5"]
+        },
+        autumn: {
+            title: "Осень",
+            text: "Осень — это время года, которое наступает после лета и характеризуется постепенным сокращением светового дня и похолоданием. В умеренных широтах осень знаменита яркими красками листвы, которая меняет цвет с зелёного на жёлтый, оранжевый и красный перед опадением. Это сезон сбора урожая, подготовки природы к зиме и активного поведения животных, запасающихся кормом. В культуре осень часто ассоциируется с меланхолией, зрелостью и подведением итогов, а также вдохновляет поэтов и художников на создание грустных, но красивых произведений. Погода осенью переменчива: солнечные дни сменяются дождями и туманами, что придаёт этому времени года особую атмосферу",
+            images: ["a1","a2","a3","a4","a5"]
+        },
+        juniper: {
+            title: "Можжевельник",
+            text: "Можжевельник — это род вечнозелёных хвойных кустарников и деревьев семейства кипарисовых. Его листья-хвоинки содержат эфирные масла, благодаря чему можжевельник обладает характерным пряным ароматом и используется в народной медицине. Шишкоягоды можжевельника применяются в кулинарии как пряность, а также для производства джина и некоторых настоек. Это неприхотливое растение часто высаживают в садах и парках для создания живых изгородей и альпийских горок. В дикой природе можжевельник служит кормом и укрытием для многих птиц и мелких животных, а также способствует укреплению почвы на склонах",
+            images: ["м1","м2","м3","м4","м5"]
+        },
+        owl: {
+            title: "Филин",
+            text: "Филин — это крупная хищная птица семейства совиных, легко узнаваемая по большим перьевым «ушкам» на голове. Филины ведут преимущественно ночной образ жизни и обладают отличным слухом и зрением, позволяющим им охотиться в темноте. Их рацион состоит из грызунов, птиц, а иногда и более крупной добычи, которую они заглатывают целиком. В культуре филин часто символизирует мудрость и тайные знания, но также может ассоциироваться с ночными страхами и мистикой. Из-за сокращения естественных местообитаний и беспокойства со стороны человека численность некоторых видов филинов вызывает опасения у защитников природы",
+            images: ["ф1","ф2","ф3","ф4","ф5"]
+        },
+        germany: {
+            title: "Германия",
+            text: "Германия — это федеративное государство в Центральной Европе, являющееся одной из крупнейших экономик мира. Страна известна своим богатым культурным наследием, включая классическую музыку, философию и литературу, а также вкладом в науку и технику. Германия славится своими историческими городами, замками, пивными традициями и ежегодными фестивалями, такими как Октоберфест. После Второй мировой войны страна прошла путь разделения и воссоединения, став одним из лидеров Европейского союза. Сегодня Германия привлекает туристов со всего мира своей природой, архитектурой и высоким уровнем жизни",
+            images: ["g1","g2","g3","g4","g5"]
+        }
+    };
+
+    // ===== ПЕРЕМЕННЫЕ =====
+    let currentQuestion = 0;
+    const quizContainer = document.getElementById('quizContainer');
+    const heartEmojis = ['❤️','💖','💕','💗','💓','💘','🩷','❣️'];
+
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = `
+        @keyframes floatUp {
+            0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.6); }
+            50%  { opacity: 1; transform: translate(-50%, -120%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -260%) scale(0.9); }
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
+    // ===== СЕРДЕЧКИ =====
+    function spawnHeart(x, y) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = x + 'px';
+        heart.style.top = y + 'px';
+        heart.style.fontSize = (20 + Math.random() * 20) + 'px';
+        heart.style.animation = 'floatUp 1.2s ease-out forwards';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1300);
+    }
+    document.addEventListener('click', (e) => {
+        const count = 3 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < count; i++) {
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 20;
+            setTimeout(() => spawnHeart(e.clientX + offsetX, e.clientY + offsetY), i * 60);
+        }
+    });
+
+    function heartBurst() {
+        const card = document.getElementById('anniversaryCard');
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const total = 40;
+        for (let i = 0; i < total; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+            heart.style.left = centerX + 'px';
+            heart.style.top = centerY + 'px';
+            heart.style.fontSize = (18 + Math.random() * 22) + 'px';
+            const angle = Math.random() * Math.PI;
+            const distance = 80 + Math.random() * 180;
+            const dx = Math.cos(angle) * distance;
+            const dy = Math.sin(angle) * distance;
+            heart.style.transition = 'transform 1.4s ease-out, opacity 1.4s ease-out';
+            heart.style.transform = 'translate(-50%, -50%) scale(1)';
+            heart.style.opacity = '1';
+            document.body.appendChild(heart);
+            requestAnimationFrame(() => {
+                heart.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.4) rotate(${Math.random() * 360}deg)`;
+                heart.style.opacity = '0';
+            });
+            setTimeout(() => heart.remove(), 1600);
+        }
+    }
+
+    // ===== ГОДОВЩИНА =====
+    const anniversaryCard = document.getElementById('anniversaryCard');
+    const anniversaryText = document.getElementById('anniversaryText');
+    const tapHint = document.getElementById('tapHint');
+    let burstDone = false;
+    anniversaryCard.addEventListener('click', () => {
+        if (burstDone) return;
+        burstDone = true;
+        anniversaryText.classList.add('revealed');
+        tapHint.classList.add('hidden');
+        heartBurst();
+        anniversaryCard.style.transform = 'scale(1.02)';
+        setTimeout(() => { anniversaryCard.style.transform = ''; }, 200);
+    });
+
+    function hideTopBlocks() {
+        document.getElementById('dateCard').classList.add('vanish');
+        anniversaryCard.classList.add('vanish');
+        setTimeout(() => {
+            document.getElementById('dateCard').classList.add('hidden');
+            anniversaryCard.classList.add('hidden');
+        }, 500);
+    }
+
+    // ===== ВОПРОСЫ =====
+    function showQuestion(index) {
+        quizContainer.innerHTML = '';
+        const qCard = document.createElement('div');
+        qCard.className = 'question-card fade-in';
+        qCard.textContent = (index + 1) + '. ' + questions[index];
+        quizContainer.appendChild(qCard);
+
+        answers.forEach((answerText, i) => {
+            const aCard = document.createElement('div');
+            aCard.className = 'answer-card fade-in';
+            aCard.style.animationDelay = (0.15 + i * 0.1) + 's';
+            aCard.textContent = answerText;
+            aCard.addEventListener('click', () => nextQuestion());
+            quizContainer.appendChild(aCard);
+        });
+
+        if (questionImages[index]) {
+            const frame = document.createElement('div');
+            frame.className = 'question-image-frame fade-in';
+            frame.style.animationDelay = '0.45s';
+            const img = document.createElement('img');
+            img.src = questionImages[index];
+            img.alt = 'Картинка к вопросу';
+            img.onerror = () => frame.remove();
+            frame.appendChild(img);
+            quizContainer.appendChild(frame);
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < questions.length) showQuestion(currentQuestion);
+        else showFinal();
+    }
+
+    function showFinal() {
+        quizContainer.innerHTML = '';
+        const finalBlock = document.getElementById('finalBlock');
+        finalBlock.innerHTML = '';
+        const finalCard = document.createElement('div');
+        finalCard.className = 'card big fade-in';
+        finalCard.innerHTML = '<div style="font-size: 26px; font-weight: bold; line-height: 1.4;">Умничка, ты все верно ответил)))</div>';
+        finalBlock.appendChild(finalCard);
+        const continueBtn = document.createElement('button');
+        continueBtn.className = 'btn fade-in';
+        continueBtn.style.animationDelay = '0.3s';
+        continueBtn.textContent = 'Продолжить';
+        continueBtn.addEventListener('click', showVideo);
+        finalBlock.appendChild(continueBtn);
+        finalBlock.classList.remove('hidden');
+    }
+
+    // ===== ВИДЕО И СПИСОК АССОЦИАЦИЙ =====
+    function showVideo() {
+        document.getElementById('finalBlock').classList.add('hidden');
+        const videoBlock = document.getElementById('videoBlock');
+        videoBlock.innerHTML = '';
+
+        const watchBtn = document.createElement('button');
+        watchBtn.className = 'btn fade-in';
+        watchBtn.textContent = 'Нажми после просмотра видео';
+        videoBlock.appendChild(watchBtn);
+
+        const video = document.createElement('video');
+        video.className = 'fade-in';
+        video.style.animationDelay = '0.2s';
+        video.controls = true;
+        video.innerHTML = '<source src="video/video.mp4" type="video/mp4">Ваш браузер не поддерживает видео.';
+        videoBlock.appendChild(video);
+
+        const assocBlock = document.createElement('div');
+        assocBlock.className = 'hidden';
+        assocBlock.innerHTML = `
+            <div class="assoc-question fade-in">Хочешь узнать больше о наших ассоциациях?</div>
+            <div class="assoc-grid">
+                <div class="assoc-item" onclick="openAssoc('fox')">Лиса</div>
+                <div class="assoc-item" onclick="openAssoc('bear')">Медведь</div>
+                <div class="assoc-item" onclick="openAssoc('white')">Белый цвет</div>
+                <div class="assoc-item" onclick="openAssoc('orange')">Оранжевый</div>
+                <div class="assoc-item" onclick="openAssoc('roses')">Розы</div>
+                <div class="assoc-item" onclick="openAssoc('autumn')">Осень</div>
+                <div class="assoc-item" onclick="openAssoc('winter')">Зима</div>
+                <div class="assoc-item" onclick="openAssoc('juniper')">Можжевельник</div>
+                <div class="assoc-item" onclick="openAssoc('crane')">Журавль</div>
+                <div class="assoc-item" onclick="openAssoc('owl')">Филин</div>
+                <div class="assoc-item center" onclick="openAssoc('peace')">Умиротворение</div>
+                <div class="assoc-item" onclick="openAssoc('portugal')">Португалия</div>
+                <div class="assoc-item" onclick="openAssoc('germany')">Германия</div>
+            </div>
+        `;
+        videoBlock.appendChild(assocBlock);
+
+        watchBtn.addEventListener('click', () => {
+            watchBtn.classList.add('hidden');
+            video.classList.add('hidden');
+            assocBlock.classList.remove('hidden');
+            assocBlock.querySelectorAll('.fade-in').forEach(el => {
+                el.style.animation = 'none';
+                void el.offsetWidth;
+                el.style.animation = '';
+            });
+        });
+
+        videoBlock.classList.remove('hidden');
+    }
+
+    // ===== ПЕРЕХОД НА СТРАНИЦУ АССОЦИАЦИИ (ВНУТРИ ОДНОГО ФАЙЛА) =====
+    function openAssoc(key) {
+        const item = assocData[key];
+        if (!item) return;
+
+        // Скрываем главный экран, показываем экран ассоциации
+        const mainScreen = document.getElementById('mainScreen');
+        const assocScreen = document.getElementById('assocScreen');
+
+        mainScreen.classList.add('hidden');
+        assocScreen.classList.remove('hidden');
+        assocScreen.innerHTML = '';
+        window.scrollTo(0, 0);
+
+        // Кнопка «Назад» — сверху
+        const backBtn = document.createElement('button');
+        backBtn.className = 'btn fade-in';
+        backBtn.textContent = '← Назад';
+        backBtn.addEventListener('click', showAssocList);
+        assocScreen.appendChild(backBtn);
+
+        // Заголовок
+        const title = document.createElement('div');
+        title.className = 'assoc-title-card fade-in';
+        title.style.animationDelay = '0.1s';
+        title.textContent = item.title;
+        assocScreen.appendChild(title);
+
+        // Текст
+        const text = document.createElement('div');
+        text.className = 'assoc-text-card fade-in';
+        text.style.animationDelay = '0.2s';
+        text.textContent = item.text;
+        assocScreen.appendChild(text);
+
+        // Галерея картинок в произвольном порядке
+        const gallery = document.createElement('div');
+        gallery.className = 'assoc-gallery';
+        const shuffled = [...item.images].sort(() => Math.random() - 0.5);
+        shuffled.forEach((name, i) => {
+            const frame = document.createElement('div');
+            frame.className = 'assoc-img-frame fade-in';
+            frame.style.animationDelay = (0.3 + i * 0.08) + 's';
+            const img = document.createElement('img');
+            img.src = 'images2/' + name + '.jpg';
+            img.alt = item.title;
+            img.onerror = () => frame.remove();
+            frame.appendChild(img);
+            gallery.appendChild(frame);
+        });
+        assocScreen.appendChild(gallery);
+    }
+
+    // ===== ВОЗВРАТ К СПИСКУ АССОЦИАЦИЙ =====
+    function showAssocList() {
+        const mainScreen = document.getElementById('mainScreen');
+        const assocScreen = document.getElementById('assocScreen');
+
+        assocScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
+
+        // Скрываем всё лишнее, оставляем только список ассоциаций
+        document.getElementById('dateCard').classList.add('hidden');
+        document.getElementById('anniversaryCard').classList.add('hidden');
+        document.getElementById('startBtn').classList.add('hidden');
+        document.getElementById('quizContainer').innerHTML = '';
+        document.getElementById('finalBlock').classList.add('hidden');
+
+        const videoBlock = document.getElementById('videoBlock');
+        videoBlock.innerHTML = '';
+        videoBlock.classList.remove('hidden');
+
+        const assocBlock = document.createElement('div');
+        assocBlock.innerHTML = `
+            <div class="assoc-question fade-in">Хочешь узнать больше о наших ассоциациях?</div>
+            <div class="assoc-grid">
+                <div class="assoc-item" onclick="openAssoc('fox')">Лиса</div>
+                <div class="assoc-item" onclick="openAssoc('bear')">Медведь</div>
+                <div class="assoc-item" onclick="openAssoc('white')">Белый цвет</div>
+                <div class="assoc-item" onclick="openAssoc('orange')">Оранжевый</div>
+                <div class="assoc-item" onclick="openAssoc('roses')">Розы</div>
+                <div class="assoc-item" onclick="openAssoc('autumn')">Осень</div>
+                <div class="assoc-item" onclick="openAssoc('winter')">Зима</div>
+                <div class="assoc-item" onclick="openAssoc('juniper')">Можжевельник</div>
+                <div class="assoc-item" onclick="openAssoc('crane')">Журавль</div>
+                <div class="assoc-item" onclick="openAssoc('owl')">Филин</div>
+                <div class="assoc-item center" onclick="openAssoc('peace')">Умиротворение</div>
+                <div class="assoc-item" onclick="openAssoc('portugal')">Португалия</div>
+                <div class="assoc-item" onclick="openAssoc('germany')">Германия</div>
+            </div>
+        `;
+        videoBlock.appendChild(assocBlock);
+
+        assocBlock.querySelectorAll('.fade-in').forEach(el => {
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = '';
+        });
+
+        window.scrollTo(0, 0);
+    }
+
+    // ===== СТАРТ =====
+    document.getElementById('startBtn').addEventListener('click', () => {
+        document.getElementById('startBtn').classList.add('hidden');
+        hideTopBlocks();
+        setTimeout(() => showQuestion(0), 400);
+    });
+</script>
+
+</body>
+</html>
+ 
